@@ -1,0 +1,58 @@
+<ng-template let-row="rowInfo" #columnTemplate>
+  <ng-container [formGroup]="todosFormGroup">
+    <div formArrayName="todoList" *ngIf="todosFormGroup.get('todoList')">
+      <ng-container
+        *ngFor="let todo of todosArray.controls; let i = index"
+        [formGroupName]="i"
+      >
+        <ng-container *ngIf="row.rowData.id === todo.get('id').value">
+          <!-- Template for the Title column -->
+          <ng-container *ngIf="row.columnName === 'Title'">
+            <input type="text" formControlName="title" />
+          </ng-container>
+
+          <ng-container *ngIf="row.columnName === 'Priority'">
+            <select formControlName="priority">
+              <option *ngFor="let prio of priorityList" [value]="prio">
+                {{ prio }}
+              </option>
+            </select>
+          </ng-container>
+
+          <!-- Template for Completed column-->
+          <ng-container *ngIf="row.columnName === 'Completed'">
+            <input type="checkbox" formControlName="completed" />
+          </ng-container>
+
+          <ng-container *ngIf="row.columnName === 'Action'">
+            <button (click)="delete(row.rowId)">Delete</button>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
+</ng-template>
+
+<div class="row">
+  <div class="col-md-6">
+    <form [formGroup]="todosFormGroup">
+      <ag-grid-angular
+        #gdTable
+        [columnDefs]="columnDefs"
+        [defaultColDef]="defaultColDef"
+        class="ag-theme-alpine"
+        [rowData]="rowData"
+        (gridReady)="onGridReady($event)"
+        (firstDataRendered)="dataRendered($event)"
+        style="width:100vh;height:100vw"
+        (rowDataChanged)="refreshFormControls()"
+      >
+      </ag-grid-angular>
+    </form>
+  </div>
+
+  <div class="col-md-6">
+    <button (click)="add()">Add ToDo</button>
+    <pre>{{ todosFormGroup.value | json }}</pre>
+  </div>
+</div>
